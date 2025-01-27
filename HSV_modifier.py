@@ -69,6 +69,8 @@ class HSV_MODIFIER:
 
             # Display result image
             cv2.imshow('result', result)
+            
+            # Key controls
             if cv2.waitKey(10) & 0xFF == ord('q'):
                 break
             elif cv2.waitKey(10) & 0xFF == ord('s'):
