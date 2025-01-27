@@ -6,13 +6,16 @@ drawing = False  # True if the mouse is being pressed
 ix, iy = -1, -1  # Initial mouse coordinates
 brush_size = 5
 brush_color = (0, 0, 255)  # Default color: red
+undo_stack = []  # Stack to store image states for undo functionality
 
 def draw_circle(event, x, y, flags, param):
-    global drawing, ix, iy
+    global drawing, ix, iy,undo_stack
 
     if event == cv2.EVENT_LBUTTONDOWN:  # Start drawing
         drawing = True
         ix, iy = x, y
+        # Save the current state for undo
+        undo_stack.append(img.copy())
 
     elif event == cv2.EVENT_MOUSEMOVE:  # Draw while moving
         if drawing:
@@ -39,6 +42,7 @@ print(" - Press 's' to save the image.")
 print(" - Press 'q' to quit without saving.")
 print(" - Use '+' and '-' to increase or decrease brush size.")
 print(" - Use 'r', 'g', 'b' to change brush color to red, green, or blue.")
+print(" - Press 'u' to undo the last action.")
 
 while True:
     cv2.imshow("Draw on the Image", img)
@@ -74,6 +78,12 @@ while True:
     elif key == ord("b"):  # Change color to blue
         brush_color = (255, 0, 0)
         print("Brush color changed to blue.")
-
+        
+    elif key == ord("u"):  # Undo the last action
+        if undo_stack:
+            img = undo_stack.pop()
+            print("Undo performed.")
+        else:
+            print("Nothing to undo.")
 # Clean up
 cv2.destroyAllWindows()
