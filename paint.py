@@ -26,10 +26,10 @@ def draw_circle(event, x, y, flags, param):
         cv2.circle(img, (x, y), brush_size, brush_color, -1)
 
 # Load the image
-img_path = "base.jpg"  # Ensure the image file is in the same directory as this script
+img_path = "base.jpg"  
 img = cv2.imread(img_path)
 if img is None:
-    print("Error: Could not load the image. Ensure 'base.jpg' is in the current directory.")
+    print(f"Error: Could not load the image. Ensure {img_path} is in the current directory.")
     exit()
 
 # Create a window and set the mouse callback function
@@ -44,8 +44,22 @@ print(" - Use '+' and '-' to increase or decrease brush size.")
 print(" - Use 'r', 'g', 'b' to change brush color to red, green, or blue.")
 print(" - Press 'u' to undo the last action.")
 
+# Map RGB values to color names
+color_names = {
+    (0, 0, 255): "Red",
+    (0, 255, 0): "Green",
+    (255, 0, 0): "Blue",
+}
+
 while True:
-    cv2.imshow("Draw on the Image", img)
+    color_name = color_names.get(brush_color, str(brush_color))
+    #cv2.imshow("Draw on the Image", img)
+    img_copy = img.copy()
+    text = f"Brush Size: {brush_size} | Color: {color_name}"
+    cv2.putText(img_copy, text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2, cv2.LINE_AA)
+    cv2.imshow("Draw on the Image", img_copy)
+    
+    
     key = cv2.waitKey(1) & 0xFF
 
     if key == ord("s"):  # Save the painted image
