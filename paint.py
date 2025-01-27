@@ -52,9 +52,8 @@ color_names = {
 }
 
 while True:
-    color_name = color_names.get(brush_color, str(brush_color))
-    #cv2.imshow("Draw on the Image", img)
     img_copy = img.copy()
+    color_name = color_names.get(brush_color, str(brush_color))
     text = f"Brush Size: {brush_size} | Color: {color_name}"
     cv2.putText(img_copy, text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2, cv2.LINE_AA)
     cv2.imshow("Draw on the Image", img_copy)
@@ -63,7 +62,6 @@ while True:
     key = cv2.waitKey(1) & 0xFF
 
     if key == ord("s"):  # Save the painted image
-        # Save the painted image
         output_path = "./base_red.jpg"
         cv2.imwrite(output_path, img)
         print(f"Painted image saved as {output_path}.")
