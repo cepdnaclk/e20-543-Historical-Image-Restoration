@@ -5,6 +5,7 @@ import numpy as np
 drawing = False  # True if the mouse is being pressed
 ix, iy = -1, -1  # Initial mouse coordinates
 brush_size = 5
+brush_color = (0, 0, 255)  # Default color: red
 
 def draw_circle(event, x, y, flags, param):
     global drawing, ix, iy
@@ -15,11 +16,11 @@ def draw_circle(event, x, y, flags, param):
 
     elif event == cv2.EVENT_MOUSEMOVE:  # Draw while moving
         if drawing:
-            cv2.circle(img, (x, y), brush_size, (0, 0, 255), -1)  # Draw a red circle
+            cv2.circle(img, (x, y), brush_size, brush_color, -1)  # Draw a red circle
 
     elif event == cv2.EVENT_LBUTTONUP:  # Stop drawing
         drawing = False
-        cv2.circle(img, (x, y), brush_size, (0, 0, 255), -1)
+        cv2.circle(img, (x, y), brush_size, brush_color, -1)
 
 # Load the image
 img_path = "base.jpg"  # Ensure the image file is in the same directory as this script
@@ -33,10 +34,11 @@ cv2.namedWindow("Draw on the Image")
 cv2.setMouseCallback("Draw on the Image", draw_circle)
 
 print("Instructions:")
-print(" - Draw red marks on the image using the left mouse button.")
+print(" - Draw on the image using the left mouse button.")
 print(" - Press 's' to save the image.")
 print(" - Press 'q' to quit without saving.")
 print(" - Use '+' and '-' to increase or decrease brush size.")
+print(" - Use 'r', 'g', 'b' to change brush color to red, green, or blue.")
 
 while True:
     cv2.imshow("Draw on the Image", img)
@@ -60,6 +62,18 @@ while True:
     elif key == ord("-"):  # Decrease brush size
         brush_size = max(1, brush_size - 1)  # Limit min size to 1
         print(f"Brush size decreased to {brush_size}.")
+        
+    elif key == ord("r"):  # Change color to red
+        brush_color = (0, 0, 255)
+        print("Brush color changed to red.")
+
+    elif key == ord("g"):  # Change color to green
+        brush_color = (0, 255, 0)
+        print("Brush color changed to green.")
+
+    elif key == ord("b"):  # Change color to blue
+        brush_color = (255, 0, 0)
+        print("Brush color changed to blue.")
 
 # Clean up
 cv2.destroyAllWindows()
