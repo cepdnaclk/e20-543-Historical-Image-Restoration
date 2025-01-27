@@ -20,26 +20,20 @@ class HSV_MODIFIER:
             return
         
         
-        original_width, original_height = image.shape[:2] # Store original width and height values. We'll need them for our output mask
+        original_width, original_height = image.shape[:2] # Store original width and height values.
         image = cv2.resize(image, (900,600)) # We'll resize the image if it's too big for the screen
 
         # Create a windows
         cv2.namedWindow('image')
         cv2.resizeWindow('image', 900, 500)
 
-        # Create trackbars for color change
-        # Hue is from 0-179 for Opencv, not 360
+        # Create trackbars for HSV adjustment
         cv2.createTrackbar('HMin', 'image', 0, 179, self.nothing)
         cv2.createTrackbar('SMin', 'image', 0, 255, self.nothing)
         cv2.createTrackbar('VMin', 'image', 0, 255, self.nothing)
-        cv2.createTrackbar('HMax', 'image', 0, 179, self.nothing)
-        cv2.createTrackbar('SMax', 'image', 0, 255, self.nothing)
-        cv2.createTrackbar('VMax', 'image', 0, 255, self.nothing)
-
-        # Set default value for Max HSV trackbars
-        cv2.setTrackbarPos('HMax', 'image', 179)
-        cv2.setTrackbarPos('SMax', 'image', 255)
-        cv2.setTrackbarPos('VMax', 'image', 255)
+        cv2.createTrackbar('HMax', 'image', 179, 179, self.nothing)
+        cv2.createTrackbar('SMax', 'image', 255, 255, self.nothing)
+        cv2.createTrackbar('VMax', 'image', 255, 255, self.nothing)
 
         # Initialize HSV min/max values
         hMin = sMin = vMin = hMax = sMax = vMax = 0
