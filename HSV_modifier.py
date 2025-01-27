@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import os
 
 class HSV_MODIFIER:
 
@@ -7,8 +8,18 @@ class HSV_MODIFIER:
 
         self.file = path
 
+        # Validate the image path
+        if not os.path.exists(self.file):
+            print(f"Error: File '{self.file}' does not exist.")
+            return
+
         # Load image
-        image = cv2.imread("base_red.jpg")
+        image = cv2.imread(self.file)
+        if image is None:
+            print("Error: Could not load the image. Ensure the file is a valid image.")
+            return
+        
+        
         original_width, original_height = image.shape[:2] # Store original width and height values. We'll need them for our output mask
         image = cv2.resize(image, (900,600)) # We'll resize the image if it's too big for the screen
 
@@ -78,4 +89,5 @@ class HSV_MODIFIER:
     def nothing(self, x):
         pass
 
-HSV_MODIFIER('./painted_photo.png') # Create an instance of the class pointing our image
+# Run the HSV_MODIFIER with the image path
+HSV_MODIFIER('./base_red.jpg')
