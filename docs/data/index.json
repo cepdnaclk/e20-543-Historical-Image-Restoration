@@ -1,0 +1,36 @@
+{
+    "team": [
+        {
+            "name": "M.L De Croos Rubin",
+            "email": "e20054@eng.pdn.ac.lk",
+            "eNumber": "E/20/054"
+        },
+        {
+            "name": "S.M.N.N.Padeniya",
+            "email": "e20276@eng.pdn.ac.lk",
+            "eNumber": "E/20/276"
+        },
+        {
+            "name": "L.R.S.R. Premasiri",
+            "email": "e20305@eng.pdn.ac.lk",
+            "eNumber": "E/20/305"
+        },
+        {
+            "name": "C.A. Rupasinghe",
+            "email": "e20342@eng.pdn.ac.lk",
+            "eNumber": "E/20/342"
+        },
+        {
+            "name": "M.L. Wijesooriya",
+            "email": "e20447@eng.pdn.ac.lk",
+            "eNumber": "E/20/447"
+        }
+    ],
+    "supervisors": [
+        {
+            "name": "Dr. Upul Jayasinghe",
+            "email": "upuljm@eng.pdn.ac.lk"
+        }
+    ],
+    "tags": []
+}
