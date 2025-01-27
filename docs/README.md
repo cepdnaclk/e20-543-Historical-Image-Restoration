@@ -3,8 +3,8 @@ layout: home
 permalink: index.html
 
 # Please update this with your repository name and title
-repository-name: eYY-XXX-project-template
-title:
+repository-name: e20-543-Historical-Image-Restoration
+title: Historical Image Restoration using Image In-painting
 ---
 
 [comment]: # "This is the standard layout for the project, but you can clean this and use your own template"
@@ -20,9 +20,11 @@ This is a sample image, to show how to add images to your page. To learn more op
  -->
 
 ## Team
--  eNumber, Name, [email](mailto:name@email.com)
--  eNumber, Name, [email](mailto:name@email.com)
--  eNumber, Name, [email](mailto:name@email.com)
+-  E/20/054, M.L De Croos Rubin, [email](mailto:e20054@eng.pdn.ac.lk)
+-  E/20/276, S.M.N.N.Padeniya, [email](mailto:e20276@eng.pdn.ac.lk)
+-  E/20/305, L.R.S.R. Premasiri, [email](mailto:e20305@eng.pdn.ac.lk)
+-  E/20/342, C.A. Rupasinghe, [email](mailto:e20342@eng.pdn.ac.lk)
+-  E/20/447, NM.L. Wijesooriya, [email](mailto:e20447@eng.pdn.ac.lk)
 
 ## Table of Contents
 1. [Introduction](#introduction)
