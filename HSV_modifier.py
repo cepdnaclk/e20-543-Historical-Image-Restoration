@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import os
 
 class HSV_MODIFIER:
 
@@ -7,28 +8,32 @@ class HSV_MODIFIER:
 
         self.file = path
 
+        # Validate the image path
+        if not os.path.exists(self.file):
+            print(f"Error: File '{self.file}' does not exist.")
+            return
+
         # Load image
-        image = cv2.imread("base_red.jpg")
-        original_width, original_height = image.shape[:2] # Store original width and height values. We'll need them for our output mask
+        image = cv2.imread(self.file)
+        if image is None:
+            print("Error: Could not load the image. Ensure the file is a valid image.")
+            return
+        
+        
+        original_width, original_height = image.shape[:2] # Store original width and height values.
         image = cv2.resize(image, (900,600)) # We'll resize the image if it's too big for the screen
 
         # Create a windows
         cv2.namedWindow('image')
         cv2.resizeWindow('image', 900, 500)
 
-        # Create trackbars for color change
-        # Hue is from 0-179 for Opencv, not 360
+        # Create trackbars for HSV adjustment
         cv2.createTrackbar('HMin', 'image', 0, 179, self.nothing)
         cv2.createTrackbar('SMin', 'image', 0, 255, self.nothing)
         cv2.createTrackbar('VMin', 'image', 0, 255, self.nothing)
-        cv2.createTrackbar('HMax', 'image', 0, 179, self.nothing)
-        cv2.createTrackbar('SMax', 'image', 0, 255, self.nothing)
-        cv2.createTrackbar('VMax', 'image', 0, 255, self.nothing)
-
-        # Set default value for Max HSV trackbars
-        cv2.setTrackbarPos('HMax', 'image', 179)
-        cv2.setTrackbarPos('SMax', 'image', 255)
-        cv2.setTrackbarPos('VMax', 'image', 255)
+        cv2.createTrackbar('HMax', 'image', 179, 179, self.nothing)
+        cv2.createTrackbar('SMax', 'image', 255, 255, self.nothing)
+        cv2.createTrackbar('VMax', 'image', 255, 255, self.nothing)
 
         # Initialize HSV min/max values
         hMin = sMin = vMin = hMax = sMax = vMax = 0
@@ -64,6 +69,8 @@ class HSV_MODIFIER:
 
             # Display result image
             cv2.imshow('result', result)
+            
+            # Key controls
             if cv2.waitKey(10) & 0xFF == ord('q'):
                 break
             elif cv2.waitKey(10) & 0xFF == ord('s'):
@@ -78,4 +85,5 @@ class HSV_MODIFIER:
     def nothing(self, x):
         pass
 
-HSV_MODIFIER('./painted_photo.png') # Create an instance of the class pointing our image
+# Run the HSV_MODIFIER with the image path
+HSV_MODIFIER('./base_red.jpg')
