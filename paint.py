@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from tkinter import Tk, filedialog
 
 # Initialize variables
 drawing = False  # True if the mouse is being pressed
@@ -9,7 +10,7 @@ brush_color = (0, 0, 255)  # Default color: red
 undo_stack = []  # Stack to store image states for undo functionality
 
 def draw_circle(event, x, y, flags, param):
-    global drawing, ix, iy,undo_stack
+    global drawing, ix, iy, undo_stack
 
     if event == cv2.EVENT_LBUTTONDOWN:  # Start drawing
         drawing = True
@@ -19,18 +20,35 @@ def draw_circle(event, x, y, flags, param):
 
     elif event == cv2.EVENT_MOUSEMOVE:  # Draw while moving
         if drawing:
-            cv2.circle(img, (x, y), brush_size, brush_color, -1)  # Draw a red circle
+            cv2.circle(img, (x, y), brush_size, brush_color, -1)  # Draw a circle
 
     elif event == cv2.EVENT_LBUTTONUP:  # Stop drawing
         drawing = False
         cv2.circle(img, (x, y), brush_size, brush_color, -1)
 
+# Use tkinter to select an image file
+def select_image():
+    root = Tk()
+    root.withdraw()  # Hide the main tkinter window
+    filepath = filedialog.askopenfilename(
+        title="Select an Image",
+        filetypes=[("Image Files", "*.jpg *.jpeg *.png *.bmp *.tiff")]
+    )
+    return filepath
+
+# Select an image
+img_path = select_image()
+if not img_path:
+    print("No image selected. Exiting.")
+    exit()
+
 # Load the image
-img_path = "base.jpg"  
 img = cv2.imread(img_path)
 if img is None:
-    print(f"Error: Could not load the image. Ensure {img_path} is in the current directory.")
+    print(f"Error: Could not load the image. Ensure {img_path} is a valid image file.")
     exit()
+
+print(f"Image loaded: {img_path}")
 
 # Create a window and set the mouse callback function
 cv2.namedWindow("Draw on the Image")
@@ -58,11 +76,10 @@ while True:
     cv2.putText(img_copy, text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2, cv2.LINE_AA)
     cv2.imshow("Draw on the Image", img_copy)
     
-    
     key = cv2.waitKey(1) & 0xFF
 
     if key == ord("s"):  # Save the painted image
-        output_path = "./base_red.jpg"
+        output_path = "./painted_image.jpg"
         cv2.imwrite(output_path, img)
         print(f"Painted image saved as {output_path}.")
         break
@@ -97,5 +114,6 @@ while True:
             print("Undo performed.")
         else:
             print("Nothing to undo.")
+
 # Clean up
 cv2.destroyAllWindows()
