@@ -86,4 +86,4 @@ class HSV_MODIFIER:
         pass
 
 # Run the HSV_MODIFIER with the image path
-HSV_MODIFIER('./base_red.jpg')
+HSV_MODIFIER('./painted_image.jpg')
