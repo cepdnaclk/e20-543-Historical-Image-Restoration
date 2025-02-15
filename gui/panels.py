@@ -30,3 +30,19 @@ class SliderPanel(Panel):
         
     def update_text(self,*args):
         self.num_label.configure(text=f'{round(self.data_var.get(),2)}')
+    
+class RevertButton(ctk.CTkButton):
+    def __init__(self,parent,*args):
+        super().__init__(master=parent,text='Revert',command=self.revert)
+        self.pack(side='bottom',pady=10)
+        self.args=args
+
+    def revert(self):
+        for var,value in self.args:
+            var.set(value)
+
+class UndoButton(ctk.CTkButton):
+    def __init__(self, parent, undo_action):
+        super().__init__(master=parent, text='Undo', command=undo_action)
+        self.pack(side='bottom',pady=10)
+        

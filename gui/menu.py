@@ -3,7 +3,7 @@ from panels import *
 import tkinter as tk
 
 class Menu(ctk.CTkTabview):
-    def __init__(self, parent,brush_settings,hsv_vars):
+    def __init__(self, parent,brush_settings,hsv_vars,image_output):
         super().__init__(master=parent)
         self.grid(column=0, row=0 , sticky='nsew', padx=10, pady=10)
 
@@ -14,7 +14,7 @@ class Menu(ctk.CTkTabview):
         self.add('Export')
 
         #widgets
-        PaintFrame(self.tab('Paint'),brush_settings)
+        PaintFrame(self.tab('Paint'),brush_settings,image_output)
         HSVFrame(self.tab('HSV'),hsv_vars)
         #EffectFrame(self.tab('Effects'),effect_vars)
         #ExportFrame(self.tab('Export'),export_image)
@@ -40,10 +40,11 @@ def rgb_to_hex(rgb):
 
 
 class PaintFrame(ctk.CTkFrame):
-    def __init__(self, parent, brush_settings):
+    def __init__(self, parent, brush_settings,image_output):
         super().__init__(master=parent, fg_color='transparent')
         self.pack(expand=True, fill='both')
         self.brush_settings = brush_settings
+        self.image_output = image_output
 
         # Brush size control
         self.brush_size_slider = SliderPanel(self, "Brush Size", brush_settings['size'], 1, 50)
@@ -77,6 +78,9 @@ class PaintFrame(ctk.CTkFrame):
         default_color = rgb_to_hex(colors["Red"])  # Assuming default is "Red"
         self.brush_settings['color'].set(default_color)
         self.set_brush_color(colors["Red"], "Red")
+        
+        # Undo button
+        self.undo_button = UndoButton(self, image_output.undo)
             
         
     
@@ -89,6 +93,7 @@ class PaintFrame(ctk.CTkFrame):
                 btn.configure(state='disabled')  # Disable the selected button
             else:
                 btn.configure(state='normal')  # Enable all other buttons
+         
      
 
 class HSVFrame(ctk.CTkFrame):

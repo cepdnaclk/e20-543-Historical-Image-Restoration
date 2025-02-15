@@ -58,6 +58,9 @@ class ImageOutput(Canvas):
     def is_within_image(self, x, y):
         # Check if a point is within the bounds of the image
         return (self.image_x <= x < self.image_x + self.image_width) and (self.image_y <= y < self.image_y + self.image_height)
+    
+    def undo(self):
+        print("press undo") 
         
 class CloseOutput(ctk.CTkButton):
     def __init__(self,parent,close_func):

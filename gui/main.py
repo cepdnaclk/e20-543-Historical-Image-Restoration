@@ -129,7 +129,7 @@ class App(ctk.CTk):
         self.image_import.grid_forget()
         self.image_output=ImageOutput(self,self.resize_image,self.brush_settings)
         self.close_button=CloseOutput(self,self.close_edit)
-        self.menu=Menu(self,self.brush_settings,self.hsv_vars)
+        self.menu=Menu(self,self.brush_settings,self.hsv_vars,self.image_output)
     
     def close_edit(self):
         self.image_output.grid_forget()
