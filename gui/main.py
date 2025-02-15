@@ -1,6 +1,9 @@
 import customtkinter as ctk
 from image_widgets import *
 from PIL import Image, ImageTk
+from menu import Menu
+import numpy as np
+import cv2
 
 class App(ctk.CTk):
     def __init__(self):
@@ -10,6 +13,7 @@ class App(ctk.CTk):
         ctk.set_appearance_mode('dark')
         self.title('Image Historation')
         self.minsize(800,500)
+        self.init_parameters()
         
         # Center the window
         width,height = 1000,600
@@ -21,38 +25,113 @@ class App(ctk.CTk):
         
         #layout
         self.rowconfigure(0, weight=1)
-        self.columnconfigure(0, weight=2)
-        self.columnconfigure(1, weight=6)
+        self.columnconfigure(0, weight=2,uniform='a')
+        self.columnconfigure(1, weight=6,uniform='a')
+        
+        #canvas data
+        self.image_width=0
+        self.image_height=0
+        self.canvas_width=0
+        self.canvas_height=0
         
         #widgets
         self.image_import=ImageImport(self,self.import_image)
         
         #run
         self.mainloop()
+    
+    def init_parameters(self):
+        self.pos_vars={
+            'rotate':ctk.DoubleVar(value=ROTATE_DEFAULT),
+            'zoom':ctk.DoubleVar(value=ZOOM_DEFAULT),
+            'flip':ctk.StringVar(value=FLIP_OPTIONS[0])
+        }
+
+        self.hsv_vars={
+            'hue':ctk.DoubleVar(value=HUE_DEFAULT),
+            'saturation':ctk.DoubleVar(value=SATURATION_DEFAULT),
+            'value':ctk.DoubleVar(value=VALUE_DEFAULT)
+        }
+
+       
+        combined_vars=list(self.pos_vars.values())
+        #tracing
+        for var in combined_vars:
+            var.trace('w',self.manipulate_image)
+            
+        for var in self.hsv_vars.values():
+            var.trace('w',self.hsv_modified_image)
+            
+    def manipulate_image(self,*args):
+        self.image=self.original
+
+        #rotate
+        if self.pos_vars['rotate'].get()!=ROTATE_DEFAULT:
+            self.image=self.image.rotate(self.pos_vars['rotate'].get())
+        
+        self.place_image() 
+    
+    def hsv_modified_image(self,*args):
+        self.image=self.original
+        
+        # Convert PIL image to a numpy array for HSV manipulation
+        np_image = np.array(self.image.convert('RGB'))
+        
+        # Convert RGB to HSV
+        hsv_image = cv2.cvtColor(np_image, cv2.COLOR_RGB2HSV)
+        
+        # Retrieve HSV values from sliders
+        h, s, v = (int(self.hsv_vars['hue'].get()),
+                   int(self.hsv_vars['saturation'].get()),
+                   int(self.hsv_vars['value'].get()))
+
+        # Get current positions of all HSV sliders
+        hMin = int(self.hsv_vars['hue'].get())
+        sMin = int(self.hsv_vars['saturation'].get())
+        vMin = int(self.hsv_vars['value'].get())
+
+        # Set minimum and maximum HSV values to display (Assuming max values are static)
+        hMax = 179  # This can be made dynamic if needed
+        sMax = 255
+        vMax = 255
+
+        lower = np.array([hMin, sMin, vMin])
+        upper = np.array([hMax, sMax, vMax])
+
+        # Apply the HSV mask
+        mask = cv2.inRange(hsv_image, lower, upper)
+        result = cv2.bitwise_and(np_image, np_image, mask=mask)
+
+        # Convert the numpy array back to a PIL Image
+        self.image = Image.fromarray(result)
+        
+        # Update the displayed image
+        self.place_image()
+        
         
     
     def import_image(self,path):
-        self.image = Image.open(path)
-        # self.image=self.original
+        self.original = Image.open(path)
+        self.image=self.original
         self.image_ratio = self.image.size[0]/self.image.size[1]
         self.image_tk=ImageTk.PhotoImage(self.image)
 
         self.image_import.grid_forget()
         self.image_output=ImageOutput(self,self.resize_image)
         self.close_button=CloseOutput(self,self.close_edit)
-        # self.menu=Menu(self,self.pos_vars,self.color_vars,self.effect_vars,self.export_image)
+        self.menu=Menu(self,self.pos_vars,self.hsv_vars)
     
     def close_edit(self):
         self.image_output.grid_forget()
         self.close_button.place_forget()
-        # self.menu.grid_forget()
+        self.menu.grid_forget()
         self.image_import=ImageImport(self,self.import_image)
     
     def resize_image(self,event):
-        # #current canvas ratio
+        # current canvas ratio
         canvas_ratio=event.width/event.height
 
-        #update canvas attributes
+        # update canvas attributes
         self.canvas_width=event.width
         self.canvas_height=event.height
 
