@@ -4,6 +4,7 @@ from PIL import Image, ImageTk
 from menu import Menu
 import numpy as np
 import cv2
+from tkinter import Canvas
 
 class App(ctk.CTk):
     def __init__(self):
@@ -40,11 +41,11 @@ class App(ctk.CTk):
         #run
         self.mainloop()
     
+    
     def init_parameters(self):
-        self.pos_vars={
-            'rotate':ctk.DoubleVar(value=ROTATE_DEFAULT),
-            'zoom':ctk.DoubleVar(value=ZOOM_DEFAULT),
-            'flip':ctk.StringVar(value=FLIP_OPTIONS[0])
+        self.brush_settings={
+            'size':ctk.IntVar(value=PENSIZE_DEFAULT),
+            'color':ctk.StringVar(value=PENCOLOR_DEFAULT)
         }
 
         self.hsv_vars={
@@ -54,22 +55,31 @@ class App(ctk.CTk):
         }
 
        
-        combined_vars=list(self.pos_vars.values())
-        #tracing
-        for var in combined_vars:
-            var.trace('w',self.manipulate_image)
+        # combined_vars=list(self.pos_vars.values())
+        # #tracing
+        # for var in combined_vars:
+        #     var.trace('w',self.manipulate_image)
             
         for var in self.hsv_vars.values():
             var.trace('w',self.hsv_modified_image)
             
-    def manipulate_image(self,*args):
-        self.image=self.original
+        for var in self.brush_settings.values():
+            var.trace('w',self.paint_image)
+            
+    # def manipulate_image(self,*args):
+    #     self.image=self.original
 
-        #rotate
-        if self.pos_vars['rotate'].get()!=ROTATE_DEFAULT:
-            self.image=self.image.rotate(self.pos_vars['rotate'].get())
+    #     #rotate
+    #     if self.pos_vars['rotate'].get()!=ROTATE_DEFAULT:
+    #         self.image=self.image.rotate(self.pos_vars['rotate'].get())
         
-        self.place_image() 
+    #     self.place_image() 
+    
+    def paint_image(self,*args):
+        self.image=self.original
+        
+        print(self.brush_settings['size'].get())
+        print(self.brush_settings['color'].get())
     
     def hsv_modified_image(self,*args):
         self.image=self.original
@@ -117,9 +127,9 @@ class App(ctk.CTk):
         self.image_tk=ImageTk.PhotoImage(self.image)
 
         self.image_import.grid_forget()
-        self.image_output=ImageOutput(self,self.resize_image)
+        self.image_output=ImageOutput(self,self.resize_image,self.brush_settings)
         self.close_button=CloseOutput(self,self.close_edit)
-        self.menu=Menu(self,self.pos_vars,self.hsv_vars)
+        self.menu=Menu(self,self.brush_settings,self.hsv_vars)
     
     def close_edit(self):
         self.image_output.grid_forget()
@@ -150,6 +160,10 @@ class App(ctk.CTk):
         self.image_output.delete('all')
         resized_image=self.image.resize((self.image_width,self.image_height))  
         self.image_tk=ImageTk.PhotoImage(resized_image) 
-        self.image_output.create_image(self.canvas_width/2,self.canvas_height/2,image=self.image_tk)
+        # Calculate centering position
+        x_position = (self.canvas_width - self.image_width) // 2
+        y_position = (self.canvas_height - self.image_height) // 2
+        self.image_output.create_image(x_position, y_position, image=self.image_tk, anchor='nw')
+        self.image_output.set_image_dimensions(x_position, y_position, self.image_width, self.image_height)
     
 App()
