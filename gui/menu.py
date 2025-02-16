@@ -2,6 +2,7 @@ import customtkinter as ctk
 from panels import *
 import tkinter as tk
 from PIL import Image, ImageTk
+from tkinter import filedialog
 
 class Menu(ctk.CTkTabview):
     def __init__(self, parent,brush_settings,hsv_vars,image_output):
@@ -18,7 +19,7 @@ class Menu(ctk.CTkTabview):
         PaintFrame(self.tab('Paint'),brush_settings,image_output)
         HSVFrame(self.tab('HSV'),parent,hsv_vars)
         RestoreFrame(self.tab('Restore'), parent) 
-        #ExportFrame(self.tab('Export'),export_image)
+        ExportFrame(self.tab('Export'), parent)  
         
 # class PositionFrame(ctk.CTkFrame):
 #     def __init__(self, parent,pos_vars):
@@ -162,3 +163,31 @@ class RestoreFrame(ctk.CTkFrame):
         method = self.method_var.get()
         # Call the App's inpainting method with the selected method.
         self.app.apply_inpainting(method=method)
+
+class ExportFrame(ctk.CTkFrame):
+    def __init__(self, parent, app):
+        super().__init__(master=parent, fg_color='transparent')
+        self.pack(expand=True, fill='both', padx=10, pady=10)
+        self.app = app  # Reference to the main App instance
+
+        # Button to export the current (repaired) image
+        self.export_button = ctk.CTkButton(
+            self,
+            text="Export Repaired Image",
+            command=self.export_image
+        )
+        self.export_button.pack(pady=10)
+
+    def export_image(self):
+        # Open a save dialog
+        file_path = filedialog.asksaveasfilename(
+            defaultextension=".png",
+            filetypes=[("PNG Files", "*.png"), ("JPEG Files", "*.jpg"), ("All Files", "*.*")]
+        )
+        if file_path:
+            try:
+                # Save the current image (self.app.image)
+                self.app.image.save(file_path)
+                print(f"Image saved to {file_path}")
+            except Exception as e:
+                print("Error saving image:", e)
