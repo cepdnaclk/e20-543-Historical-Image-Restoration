@@ -89,6 +89,51 @@ class App(ctk.CTk):
         # Update the displayed image
         self.place_image()
         
+    def generate_mask(self):
+        # Work on a copy of the composite image (original + painting)
+        composite = self.composite.copy()
+        
+        # Convert to a NumPy array and then to HSV
+        np_image = np.array(composite.convert('RGB'))
+        hsv_image = cv2.cvtColor(np_image, cv2.COLOR_RGB2HSV)
+        
+        # Retrieve current HSV slider values
+        hMin = int(self.hsv_vars['hue'].get())
+        sMin = int(self.hsv_vars['saturation'].get())
+        vMin = int(self.hsv_vars['value'].get())
+        hMax = 179  
+        sMax = 255
+        vMax = 255
+
+        lower = np.array([hMin, sMin, vMin])
+        upper = np.array([hMax, sMax, vMax])
+        
+        # Create a binary mask: red-painted regions become white (255), the rest black (0)
+        mask = cv2.inRange(hsv_image, lower, upper)
+        
+        # Save the raw composite image for inspection
+        self.composite.save("debug_composite.png")
+        # Save the raw mask to disk
+        cv2.imwrite("debug_mask_raw.png", mask)
+        
+        # --- Debugging Code Start ---
+        # Save the raw mask to disk for inspection
+        cv2.imwrite('debug_mask.png', mask)
+        
+        
+        # Optional: Clean up the mask (remove noise, fill small holes)
+        kernel = np.ones((3, 3), np.uint8)
+        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+        mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+        
+        # Save the mask for later use (e.g., for inpainting)
+        self.mask = mask
+        
+        # Convert mask to an RGB image so it can be previewed in the GUI
+        mask_rgb = cv2.cvtColor(mask, cv2.COLOR_GRAY2RGB)
+        mask_pil = Image.fromarray(mask_rgb)
+        return mask_pil
+
         
     
     def import_image(self,path):
@@ -152,4 +197,40 @@ class App(ctk.CTk):
         self.image_output.create_image(x_position, y_position, image=self.image_tk, anchor='nw')
         self.image_output.set_image_dimensions(x_position, y_position, self.image_width, self.image_height)
     
+    def apply_inpainting(self, method="TELEA", inpaint_radius=3):
+        # Ensure that a mask is available (generated previously)
+        if not hasattr(self, "mask"):
+            print("No mask available. Generate a mask first.")
+            return
+
+        # Convert the original image (kept intact) from PIL to a CV2 image (BGR)
+        original_cv = cv2.cvtColor(np.array(self.original), cv2.COLOR_RGB2BGR)
+
+        # Make sure the mask is in the proper format (uint8, single channel)
+        mask_cv = self.mask.astype(np.uint8)
+        
+        # Choose the inpainting method based on the passed parameter:
+        if method.upper() == "TELEA":
+            flag = cv2.INPAINT_TELEA
+        elif method.upper() in ["NS", "NAVIER-STOKES"]:
+            flag = cv2.INPAINT_NS
+        else:
+            flag = cv2.INPAINT_TELEA
+
+        # Apply the inpainting algorithm:
+        inpainted_cv = cv2.inpaint(original_cv, mask_cv, inpaint_radius, flag)
+
+        # Convert the inpainted image back to PIL format (convert BGR back to RGB)
+        inpainted_pil = Image.fromarray(cv2.cvtColor(inpainted_cv, cv2.COLOR_BGR2RGB))
+        inpainted_pil.save("debug_inpainted.png")
+
+        # Update your images: we update self.image and self.composite to show the repaired image.
+        self.image = inpainted_pil.copy()
+        self.composite = inpainted_pil.copy()
+        
+        self.draw = ImageDraw.Draw(self.image)
+        
+        # Refresh the displayed image on the canvas.
+        self.place_image()
+
 App()

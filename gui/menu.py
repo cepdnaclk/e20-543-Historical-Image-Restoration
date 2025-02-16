@@ -1,6 +1,7 @@
 import customtkinter as ctk
 from panels import *
 import tkinter as tk
+from PIL import Image, ImageTk
 
 class Menu(ctk.CTkTabview):
     def __init__(self, parent,brush_settings,hsv_vars,image_output):
@@ -10,13 +11,13 @@ class Menu(ctk.CTkTabview):
         #tabs
         self.add('Paint')
         self.add('HSV')
-        self.add('Effects')
+        self.add('Restore')
         self.add('Export')
 
         #widgets
         PaintFrame(self.tab('Paint'),brush_settings,image_output)
-        HSVFrame(self.tab('HSV'),hsv_vars)
-        #EffectFrame(self.tab('Effects'),effect_vars)
+        HSVFrame(self.tab('HSV'),parent,hsv_vars)
+        RestoreFrame(self.tab('Restore'), parent) 
         #ExportFrame(self.tab('Export'),export_image)
         
 # class PositionFrame(ctk.CTkFrame):
@@ -97,9 +98,67 @@ class PaintFrame(ctk.CTkFrame):
      
 
 class HSVFrame(ctk.CTkFrame):
-    def __init__(self, parent, hsv_vars):
+    def __init__(self, parent,app, hsv_vars):
         super().__init__(master=parent, fg_color='transparent')
         self.pack(expand=True, fill='both')
+        self.app = app
+        
         SliderPanel(self, 'Hue', hsv_vars['hue'], 0, 179)
         SliderPanel(self, 'Saturation', hsv_vars['saturation'], 0, 255)
         SliderPanel(self, 'Value', hsv_vars['value'], 0, 255)
+        
+        # Button to generate the mask based on current HSV settings
+        self.generate_mask_button = ctk.CTkButton(self, text="Generate Mask", command=self.generate_mask)
+        self.generate_mask_button.pack(pady=10)
+        
+        # Label to display the mask preview
+        self.mask_label = ctk.CTkLabel(self, text="Mask Preview")
+        self.mask_label.pack(pady=10)
+        
+    def generate_mask(self):
+        # Generate the mask using the App's generate_mask() method (returns a PIL Image)
+        mask_pil = self.app.generate_mask()
+        
+        # Define the desired preview width (adjust as needed)
+        preview_width = 300
+        # Calculate preview height to maintain the aspect ratio:
+        preview_height = int(mask_pil.height * preview_width / mask_pil.width)
+        
+        # Resize the PIL mask image:
+        mask_pil_resized = mask_pil.resize((preview_width, preview_height))
+        
+        # Convert the PIL image to a CTkImage (use dark_image; you could also set light_image)
+        mask_ctk = ctk.CTkImage(dark_image=mask_pil_resized, size=(preview_width, preview_height))
+        
+        # Update the label with the new CTkImage:
+        self.mask_label.configure(image=mask_ctk, text="")  # Remove text if any
+        self.mask_label.image = mask_ctk  # Keep a reference to avoid GC
+        
+class RestoreFrame(ctk.CTkFrame):
+    def __init__(self, parent, app):
+        super().__init__(master=parent, fg_color='transparent')
+        self.pack(expand=True, fill='both', padx=10, pady=10)
+        self.app = app  # This is the main App instance
+
+        # Option menu for selecting the inpainting method.
+        self.method_var = ctk.StringVar(value="TELEA")
+        self.method_option = ctk.CTkOptionMenu(
+            self, 
+            values=["TELEA", "Navier-Stokes"],
+            variable=self.method_var
+        )
+        self.method_option.pack(pady=10)
+
+        # Button to apply inpainting.
+        self.inpaint_button = ctk.CTkButton(
+            self, 
+            text="Apply Inpainting", 
+            command=self.apply_inpainting
+        )
+        self.inpaint_button.pack(pady=10)
+
+    def apply_inpainting(self):
+        # Get the selected method from the option menu.
+        method = self.method_var.get()
+        # Call the App's inpainting method with the selected method.
+        self.app.apply_inpainting(method=method)
