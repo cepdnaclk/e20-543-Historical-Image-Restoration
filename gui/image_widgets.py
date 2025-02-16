@@ -49,15 +49,45 @@ class ImageOutput(Canvas):
     def paint(self, event):
         if self.last_x is not None and self.last_y is not None:
             if self.is_within_image(event.x, event.y):
-                # Draw directly using event coordinates
+                # Draw on the canvas for immediate feedback:
                 self.create_line(self.last_x, self.last_y, event.x, event.y,
-                                 fill=self.brush_settings['color'].get(), 
-                                 width=self.brush_settings['size'].get(), 
-                                 capstyle='round', smooth=True)
+                                fill=self.brush_settings['color'].get(), 
+                                width=self.brush_settings['size'].get(), 
+                                capstyle='round', smooth=True)
+                
+                # Convert canvas coordinates to the original image coordinates:
+                original_width, original_height = self.parent_app.original.size
+                scale_x = original_width / self.image_width
+                scale_y = original_height / self.image_height
+                
+                draw_x1 = (self.last_x - self.image_x) * scale_x
+                draw_y1 = (self.last_y - self.image_y) * scale_y
+                draw_x2 = (event.x - self.image_x) * scale_x
+                draw_y2 = (event.y - self.image_y) * scale_y
+                
+                # Optionally adjust the brush size for the PIL image (if needed)
+                brush_size = int(self.brush_settings['size'].get() * scale_x)
+                
+                # Draw on the underlying PIL image:
+                self.parent_app.draw.line(
+                    [(draw_x1, draw_y1), (draw_x2, draw_y2)],
+                    fill=self.brush_settings['color'].get(),
+                    width=brush_size
+                )
+                
+                # **Update the composite image immediately so HSV changes include this stroke:**
+                self.parent_app.composite = self.parent_app.image.copy()
+                
+                # Update last positions:
                 self.last_x, self.last_y = event.x, event.y
+
+
 
     def stop_painting(self, event):
         self.last_x, self.last_y = None, None
+        # Update the composite image (original + all strokes drawn so far)
+        self.parent_app.composite = self.parent_app.image.copy()
+
     
     def is_within_image(self, x, y):
         # Check if a point is within the bounds of the image

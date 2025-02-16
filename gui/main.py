@@ -5,6 +5,7 @@ from menu import Menu
 import numpy as np
 import cv2
 from tkinter import Canvas
+from PIL import ImageDraw
 
 class App(ctk.CTk):
     def __init__(self):
@@ -55,53 +56,23 @@ class App(ctk.CTk):
         }
 
        
-        # combined_vars=list(self.pos_vars.values())
-        # #tracing
-        # for var in combined_vars:
-        #     var.trace('w',self.manipulate_image)
             
         for var in self.hsv_vars.values():
             var.trace('w',self.hsv_modified_image)
             
-        for var in self.brush_settings.values():
-            var.trace('w',self.paint_image)
-            
-    # def manipulate_image(self,*args):
-    #     self.image=self.original
-
-    #     #rotate
-    #     if self.pos_vars['rotate'].get()!=ROTATE_DEFAULT:
-    #         self.image=self.image.rotate(self.pos_vars['rotate'].get())
-        
-    #     self.place_image() 
-    
-    def paint_image(self,*args):
-        self.image=self.original
-        
-        print(self.brush_settings['size'].get())
-        print(self.brush_settings['color'].get())
     
     def hsv_modified_image(self,*args):
-        self.image=self.original
+        composite = self.composite.copy()
         
-        # Convert PIL image to a numpy array for HSV manipulation
-        np_image = np.array(self.image.convert('RGB'))
-        
-        # Convert RGB to HSV
+        # Convert to a numpy array for HSV manipulation
+        np_image = np.array(composite.convert('RGB'))
         hsv_image = cv2.cvtColor(np_image, cv2.COLOR_RGB2HSV)
         
-        # Retrieve HSV values from sliders
-        h, s, v = (int(self.hsv_vars['hue'].get()),
-                   int(self.hsv_vars['saturation'].get()),
-                   int(self.hsv_vars['value'].get()))
-
-        # Get current positions of all HSV sliders
+        # Retrieve HSV slider values
         hMin = int(self.hsv_vars['hue'].get())
         sMin = int(self.hsv_vars['saturation'].get())
         vMin = int(self.hsv_vars['value'].get())
-
-        # Set minimum and maximum HSV values to display (Assuming max values are static)
-        hMax = 179  # This can be made dynamic if needed
+        hMax = 179  
         sMax = 255
         vMax = 255
 
@@ -122,9 +93,17 @@ class App(ctk.CTk):
     
     def import_image(self,path):
         self.original = Image.open(path)
-        self.image=self.original
+        self.image=self.original.copy()
+        
+        self.draw = ImageDraw.Draw(self.image)
+        
+        # Store a composite image (original + strokes) for later processing
+        self.composite = self.image.copy()
+        
         self.image_ratio = self.image.size[0]/self.image.size[1]
         self.image_tk=ImageTk.PhotoImage(self.image)
+        
+        
 
         self.image_import.grid_forget()
         self.image_output=ImageOutput(self,self.resize_image,self.brush_settings)
