@@ -19,7 +19,8 @@ class ImageOutput(Canvas):
         self.grid(row = 0,column=1,sticky='nsew',padx=10,pady=10)
         self.bind('<Configure>',resize_image)
         
-        self.brush_settings = brush_settings 
+        self.brush_settings = brush_settings
+        self.parent_app = parent    
         
         # Binding mouse events
         self.bind("<Button-1>", self.start_painting)
@@ -29,6 +30,9 @@ class ImageOutput(Canvas):
         # Initialize drawing state
         self.last_x = None
         self.last_y = None
+        
+    def set_original_image(self, img):
+            self.original_image = img 
         
     def set_image_dimensions(self, x, y, width, height):
         self.image_x = x
@@ -61,6 +65,8 @@ class ImageOutput(Canvas):
     
     def undo(self):
         print("press undo") 
+        if self.original_image:
+            self.parent_app.revert_image(self.original_image)
         
 class CloseOutput(ctk.CTkButton):
     def __init__(self,parent,close_func):

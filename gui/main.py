@@ -128,6 +128,7 @@ class App(ctk.CTk):
 
         self.image_import.grid_forget()
         self.image_output=ImageOutput(self,self.resize_image,self.brush_settings)
+        self.image_output.set_original_image(self.original) 
         self.close_button=CloseOutput(self,self.close_edit)
         self.menu=Menu(self,self.brush_settings,self.hsv_vars,self.image_output)
     
@@ -155,6 +156,12 @@ class App(ctk.CTk):
             self.image_height=int(self.image_width/self.image_ratio)
 
         self.place_image()
+    
+    def revert_image(self, original_image):
+        """Revert the displayed image to the original image."""
+        self.image = original_image  # Set the current image to the original
+        self.image_tk = ImageTk.PhotoImage(self.image)  # Create a new PhotoImage
+        self.place_image() 
     
     def place_image(self):
         self.image_output.delete('all')

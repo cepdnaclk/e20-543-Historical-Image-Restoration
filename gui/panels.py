@@ -43,6 +43,6 @@ class RevertButton(ctk.CTkButton):
 
 class UndoButton(ctk.CTkButton):
     def __init__(self, parent, undo_action):
-        super().__init__(master=parent, text='Undo', command=undo_action)
+        super().__init__(master=parent, text='Revert', command=undo_action)
         self.pack(side='bottom',pady=10)
         
