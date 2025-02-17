@@ -183,7 +183,9 @@ class App(ctk.CTk):
     
     def revert_image(self, original_image):
         """Revert the displayed image to the original image."""
-        self.image = original_image  # Set the current image to the original
+        self.image = original_image.copy() # Set the current image to the original
+        self.composite = self.image.copy()     # Update composite as well!
+        self.draw = ImageDraw.Draw(self.image)
         self.image_tk = ImageTk.PhotoImage(self.image)  # Create a new PhotoImage
         self.place_image() 
     
